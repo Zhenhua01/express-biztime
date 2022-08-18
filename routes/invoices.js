@@ -7,7 +7,7 @@ const router = new express.Router();
 const db = require("../db");
 
 
-/**Return info on invoices: like {invoices: [{id, comp_code}, ...]}*/
+/** Return info on invoices: like {invoices: [{id, comp_code}, ...]}*/
 
 router.get("/", async function (req, res, next) {
   //add ORDER BY so you get same results each time
@@ -19,7 +19,7 @@ router.get("/", async function (req, res, next) {
   return res.json({ invoices });
 });
 
-/**Returns {invoice: {id, amt, paid, add_date, paid_date,
+/** Returns {invoice: {id, amt, paid, add_date, paid_date,
  *  company: {code, name, description}} */
 
 router.get("/:id", async function (req, res, next) {
@@ -28,8 +28,8 @@ router.get("/:id", async function (req, res, next) {
     SELECT id, amt, paid, add_date, paid_date
         FROM invoices
         WHERE id = $1`, [id]);
-  debugger;
   const invoice = iResults.rows[0];
+
   const cResults = await db.query(`
     SELECT c.code, c.name, c.description
         FROM companies c
@@ -48,7 +48,7 @@ router.get("/:id", async function (req, res, next) {
   return res.json({ invoice });
 });
 
-/** Creates new invoice, returns obj of
+/** Creates new invoice {}, returns obj of
  * new invoice: {invoice: {id, comp_code, amt, paid, add_date, paid_date}}*/
 
 router.post("/", async function (req, res, next) {
@@ -66,7 +66,7 @@ router.post("/", async function (req, res, next) {
 });
 
 
-/** Update invoice, returns updated
+/** Update invoice {}, returns updated
  * invoice object: {invoice: {id, comp_code, amt, paid, add_date, paid_date}} */
 
  router.put("/:id", async function (req, res, next) {
@@ -80,7 +80,6 @@ router.post("/", async function (req, res, next) {
            RETURNING id, amt, paid, add_date, paid_date`,
     [amt, id]
   );
-
   const invoice = result.rows[0];
 
   if (!invoice) {
@@ -90,7 +89,7 @@ router.post("/", async function (req, res, next) {
   return res.json({ invoice });
 });
 
-/** Delete invoice, returning {status: "Deleted"} */
+/** Delete invoice, returning {status: "deleted"} */
 
 router.delete("/:id", async function (req, res, next) {
   const id = req.params.id;
@@ -101,17 +100,14 @@ router.delete("/:id", async function (req, res, next) {
     RETURNING id`,
     [id],
   );
-
   const invoice = result.rows[0];
 
   if (!invoice) {
     throw new NotFoundError(`No matching invoice: ${id}`);
   };
 
-  return res.json({ status: "Deleted" });
+  return res.json({ status: "deleted" });
 });
-
-
 
 
 module.exports = router;

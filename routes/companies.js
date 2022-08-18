@@ -21,10 +21,12 @@ router.get("/", async function (req, res, next) {
   return res.json({ companies });
 });
 
-/** GET /[code] - return data about one company: `{company: {code, name, description}}` */
+/** GET /[code] - return data about one
+ * company: `{company: {code, name, description}}` */
 
 router.get("/:code", async function (req, res, next) {
   const code = req.params.code;
+
   const results = await db.query(`
     SELECT code, name, description
         FROM companies
@@ -32,11 +34,9 @@ router.get("/:code", async function (req, res, next) {
   const company = results.rows[0];
 
   const iResults = await db.query(`
-    SELECT i.id
-        FROM invoices i
-        JOIN companies c
-        ON c.code = i.comp_code
-        WHERE i.comp_code = $1`, [code]);
+    SELECT id
+        FROM invoices
+        WHERE comp_code = $1`, [code]);
   const invoices = iResults.rows;
 
   company.invoices = invoices.map(i => i.id);
@@ -49,7 +49,7 @@ router.get("/:code", async function (req, res, next) {
   return res.json({ company });
 });
 
-/** Create new company,
+/** Create new company {},
  * returns obj of new company: {company: {code, name, description}}*/
 
 router.post("/", async function (req, res, next) {
@@ -62,12 +62,12 @@ router.post("/", async function (req, res, next) {
     [code, name, description],
   );
   const company = result.rows[0];
-  return res.status(201).json({ company });
 
+  return res.status(201).json({ company });
 });
 
 
-/** Update company,
+/** Update company {},
  * returns update company object: {company: {code, name, description}} */
 
 router.put("/:code", async function (req, res, next) {
@@ -91,7 +91,7 @@ router.put("/:code", async function (req, res, next) {
   return res.json({ company });
 });
 
-/** Delete company, returning {status: "Deleted"} */
+/** Delete company, returning {status: "deleted"} */
 
 router.delete("/:code", async function (req, res, next) {
   const code = req.params.code;
@@ -109,9 +109,8 @@ router.delete("/:code", async function (req, res, next) {
     throw new NotFoundError(`No matching company: ${code}`);
   };
 
-  return res.json({ status: "Deleted" });
+  return res.json({ status: "deleted" });
 });
-
 
 
 module.exports = router;
