@@ -34,6 +34,67 @@ router.get("/:code", async function (req, res, next) {
   return res.json({ company });
 });
 
+/** Create new company, return company */
+
+router.post("/", async function (req, res, next) {
+  const { code, name, description } = req.body;
+
+  const result = await db.query(
+    `INSERT INTO companies (code, name, description)
+           VALUES ($1, $2, $3)
+           RETURNING code, name, description`,
+    [code, name, description],
+  );
+  const company = result.rows[0];
+  return res.status(201).json({ company });
+
+});
+
+
+/** Update company, returning company */
+
+router.put("/:code", async function (req, res, next) {
+  const { name, description } = req.body;
+  const code = req.params.code;
+
+  const result = await db.query(
+    `UPDATE companies
+           SET name=$1,
+               description=$2
+           WHERE code = $3
+           RETURNING code, name, description`,
+    [name, description, code],
+  );
+
+  const company = result.rows[0];
+
+  if (!company) {
+    throw new NotFoundError(`No matching company: ${code}`);
+  };
+  return res.json({ company });
+});
+
+/** Delete company, returning {message: "Deleted"} */
+
+router.delete("/:code", async function (req, res, next) {
+  const code = req.params.code;
+
+  const result = await db.query(
+    `DELETE FROM companies
+    WHERE code = $1
+    RETURNING code`,
+    [code],
+  );
+
+  const company = result.rows[0];
+
+  if (!company) {
+    throw new NotFoundError(`No matching company: ${code}`);
+  };
+
+  return res.json({ status: "Deleted" });
+});
+
 
 
 module.exports = router;
