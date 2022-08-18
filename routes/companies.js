@@ -2,7 +2,7 @@
 /** Routes about companies. */
 
 const express = require("express");
-const { NotFoundError, BadRequestError } = require("../expressError");
+const { NotFoundError } = require("../expressError");
 
 const router = new express.Router();
 const db = require("../db");
@@ -30,6 +30,16 @@ router.get("/:code", async function (req, res, next) {
         FROM companies
         WHERE code = $1`, [code]);
   const company = results.rows[0];
+
+  const iResults = await db.query(`
+    SELECT i.id
+        FROM invoices i
+        JOIN companies c
+        ON c.code = i.comp_code
+        WHERE i.comp_code = $1`, [code]);
+  const invoices = iResults.rows;
+
+  company.invoices = invoices.map(i => i.id);
 
   if (!company) {
     debugger;
@@ -81,7 +91,7 @@ router.put("/:code", async function (req, res, next) {
   return res.json({ company });
 });
 
-/** Delete company, returning {message: "Deleted"} */
+/** Delete company, returning {status: "Deleted"} */
 
 router.delete("/:code", async function (req, res, next) {
   const code = req.params.code;
