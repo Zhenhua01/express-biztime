@@ -1,3 +1,4 @@
+"use strict"
 /** Routes about companies. */
 
 const express = require("express");
@@ -11,7 +12,10 @@ const db = require("../db");
 
 router.get("/", async function (req, res, next) {
   //add ORDER BY so you get same results each time
-  const results = await db.query("SELECT code, name FROM companies");
+  const results = await db.query(
+    `SELECT code, name
+        FROM companies
+        ORDER BY code`);
   const companies = results.rows;
 
   return res.json({ companies });

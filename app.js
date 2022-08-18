@@ -1,7 +1,10 @@
+"use strict"
+
 /** BizTime express application. */
 
 const express = require("express");
 const companiesRoutes = require("./routes/companies");
+const invoicesRoutes = require("./routes/invoices");
 const { NotFoundError } = require("./expressError");
 
 const app = express();
@@ -10,6 +13,9 @@ app.use(express.json());
 
 // apply /companies prefix to every route in routes/companies
 app.use("/companies", companiesRoutes);
+
+// apply /invoices prefix to every route in routes/invoices
+app.use("/invoices", invoicesRoutes);
 
 
 /** 404 handler: matches unmatched routes; raises NotFoundError. */
