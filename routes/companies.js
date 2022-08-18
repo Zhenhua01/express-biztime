@@ -10,6 +10,7 @@ const db = require("../db");
 /** GET / - returns `{companies: [companies, ...] }` */
 
 router.get("/", async function (req, res, next) {
+  //add ORDER BY so you get same results each time
   const results = await db.query("SELECT code, name FROM companies");
   const companies = results.rows;
 
@@ -34,7 +35,8 @@ router.get("/:code", async function (req, res, next) {
   return res.json({ company });
 });
 
-/** Create new company, return company */
+/** Create new company,
+ * returns obj of new company: {company: {code, name, description}}*/
 
 router.post("/", async function (req, res, next) {
   const { code, name, description } = req.body;
@@ -51,7 +53,8 @@ router.post("/", async function (req, res, next) {
 });
 
 
-/** Update company, returning company */
+/** Update company,
+ * returns update company object: {company: {code, name, description}} */
 
 router.put("/:code", async function (req, res, next) {
   const { name, description } = req.body;
